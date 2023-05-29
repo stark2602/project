@@ -1,4 +1,4 @@
-# default brain settings
+# default liver settings
 APPLICATION_TITLE = "Theia – NIfTI (nii.gz) 3D Visualizer"
 LIVER_SMOOTHNESS = 500
 LIVER_OPACITY = 0.2
