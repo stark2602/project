@@ -1,0 +1,78 @@
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+
+def generate_3d_image_from_folder(folder_path, depth):
+    """
+    Generate a 3D image from multiple 2D images in a folder.
+    
+    Args:
+        folder_path (str): Path to the folder containing the input images.
+        depth (float): Depth of the 3D image.
+    
+    Returns:
+        3D image as a numpy array.
+    """
+    # Get a list of image file names in the folder
+    image_files = os.listdir(folder_path)
+    
+    # Read and convert the images to grayscale, store them in a list
+    images = []
+    for file in image_files:
+        image_path = os.path.join(folder_path, file)
+        image = Image.open(image_path).convert('L')  # Convert to grayscale
+        images.append(np.array(image))
+    
+    # Call the existing function to generate the 3D image
+    image_3d = generate_3d_image(images, depth)
+    
+    return image_3d
+
+# Function to generate a 3D image from multiple 2D images
+def generate_3d_image(images, depth):
+    """
+    Generate a 3D image from multiple 2D images.
+    
+    Args:
+        images (list): List of 2D images as numpy arrays.
+        depth (float): Depth of the 3D image.
+    
+    Returns:
+        3D image as a numpy array.
+    """
+    num_images = len(images)
+    image_shape = images[0].shape
+    
+    # Initialize the 3D image
+    image_3d = np.zeros((image_shape[0], image_shape[1], num_images))
+    
+    # Populate the 3D image with the given images
+    for i, image in enumerate(images):
+        image_3d[:, :, i] = image
+    
+    # Scale the depth of the 3D image
+    image_3d *= depth / np.max(image_3d)
+    
+    return image_3d
+
+# Prompt the user for the input folder path
+folder_path = input("enter folder path")
+
+# Validate the folder path
+if not os.path.exists(folder_path):
+    print("Invalid folder path!")
+    exit()
+
+# Prompt the user for the depth value
+depth = float(input("Enter the depth of the 3D image: "))
+
+# Generate the 3D image from the input folder
+image_3d = generate_3d_image_from_folder(folder_path, depth)
+
+# Display the 3D image
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+x, y, z = np.meshgrid(range(image_3d.shape[1]), range(image_3d.shape[0]), range(image_3d.shape[2]))
+ax.scatter(x, y, z, c=image_3d.flatten(), cmap='viridis')
+plt.show()
